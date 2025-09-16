@@ -4,7 +4,7 @@
 
  const CHARACTERISTIC_UUID = "abcdef01-1234-5678-1234-56789abcdef0"; 
 
- const DEVICE_NAME = "MAX30105 Sensor"; 
+ const DEVICE_NAME = "MAX30102 Sensor"; 
 
 
 
@@ -139,5 +139,6 @@
      link.click();  // または link.dispatchEvent(new MouseEvent("click")); 
 
      document.body.removeChild(link); 
+
 
  });
