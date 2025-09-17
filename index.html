@@ -1,39 +1,37 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>MAX30102 BLE</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <h1>MAX センサデータ</h1>
+    <div id="controls">
+      <button id="connectButton">BLEデバイスに接続</button>
+      <button id="disconnectButton" disabled>接続解除</button>
+      <button id="measureButton" disabled>計測開始</button>
+      <button id="downloadButton">CSVダウンロード</button>
+      <button id="resetButton">データリセット</button>
+    </div>
 
- <html lang="ja"> 
+    <div id="statusDisplay">
+      <div class="row">接続状態: <span id="status">未接続</span></div>
+      <div class="row">デバイス名: <span id="deviceName">-</span></div>
+    </div>
 
- <head> 
+    <div id="dataDisplay">
+      <div class="row">BPM: <span id="bpmValue">-</span></div>
+      <div class="row">平均BPM: <span id="avgBpmValue">-</span></div>
+      <div class="row">経過時間(計測): <span id="timeValue">-</span> s</div>
+      <div class="row">受信時刻(クライアント): <span id="recvTimeValue">-</span></div>
+    </div>
 
-     <meta charset="UTF-8"> 
+    <div id="chartContainer">
+      <canvas id="realtimeChart"></canvas>
+    </div>
 
-     <title>BLE MAX30102</title> 
-
- </head> 
-
- <body> 
-
-     <h1>BLEセンサーデータ</h1> 
-
-     <button id="connectButton">BLEデバイスに接続</button> 
-
-     <button id="downloadButton">CSVダウンロード</button> 
-
-     <div id="dataDisplay"> 
-
-         <p>BPM: <span id="bpmValue">-</span></p> 
-
-         <p>平均BPM: <span id="avgBpmValue">-</span></p> 
-
-         <p>経過時間: <span id="timeValue">-</span></p> 
-
-     </div> 
-
-     <script src="BLE_MAX.js"></script> 
-
- </body> 
-
-
-
-
- </html>
-
+    <script src="BLE_MAX.js"></script>
+  </body>
+</html>
