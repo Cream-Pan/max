@@ -60,11 +60,6 @@ button:hover {
   font-size: 0.8em;
 }
 
-#realtimeChart {
-  width: 100% !important;
-  height: 55vh !important;
-}
-
 .row { 
   margin: 6px 0; 
 }
@@ -72,3 +67,4 @@ button:hover {
 .val { 
   font-variant-numeric: tabular-nums; 
 }
+
