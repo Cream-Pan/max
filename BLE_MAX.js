@@ -1,10 +1,11 @@
 // 設定
 const SERVICE_UUID = "3a5197ff-07ce-499e-8d37-d3d457af549a";
 const CHARACTERISTIC_UUID = "abcdef01-1234-5678-1234-56789abcdef0";
+const FLAG_CHARACTERISTIC_UUID = "abcdef01-1234-5678-1234-56789abcdef1";
 const DEVICE_NAME = "MAX30102 Sensor";
 
 // 状態
-let device, characteristic, service;
+let device, characteristic, flagCharacteristic, service;
 let measureStartEpochMs = null;   // 計測(通知購読開始)時刻
 const receivedData = [];          // CSV用
 let chart;
@@ -18,7 +19,6 @@ const connectButton = document.getElementById("connectButton");
 const disconnectButton = document.getElementById("disconnectButton");
 const measureButton = document.getElementById("measureButton");
 const downloadButton = document.getElementById("downloadButton");
-const resetButton = document.getElementById("resetButton");
 const statusSpan = document.getElementById("status");
 const deviceNameSpan = document.getElementById("deviceName");
 
@@ -142,6 +142,24 @@ function handleNotification(event) {
   }
 }
 
+function handleFlagNotification(event) {
+  const value = event.target.value;
+  if (value.byteLength !== 1) return;
+
+  const flag = value.getUint8(0);
+  const distanceStatusEl = document.getElementById("distanceStatus");
+
+  if (flag === 0) {
+    distanceStatusEl.textContent = "センサとの距離が離れています";
+    distanceStatusEl.style.color = "#d00";
+    distanceStatusEl.style.fontWeight = "600";
+  } else {
+    distanceStatusEl.textContent = "距離は正常です";
+    distanceStatusEl.style.color = "#046307";
+    distanceStatusEl.style.fontWeight = "600";
+  }
+}
+
 function clearDataAndChart() {
     receivedData.length = 0; // データをクリア
     bpmBuffer = [];
@@ -157,6 +175,8 @@ function clearDataAndChart() {
     document.getElementById("recvTimeValue").textContent = "-";
     measureStartEpochMs = null;
     measureButton.textContent = "計測開始";
+
+    downloadButton.disabled = true;
 }
 
 connectButton.addEventListener("click", async () => {
@@ -169,6 +189,7 @@ connectButton.addEventListener("click", async () => {
     const server = await device.gatt.connect();
     service = await server.getPrimaryService(SERVICE_UUID);
     characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
+    flagCharacteristic = await service.getCharacteristic(FLAG_CHARACTERISTIC_UUID);
 
     statusSpan.textContent = "接続済み";
     deviceNameSpan.textContent = device.name;
@@ -176,6 +197,7 @@ connectButton.addEventListener("click", async () => {
     disconnectButton.disabled = false;
     measureButton.disabled = false;
     measureButton.textContent = "計測開始";
+    downloadButton.disabled = true; 
 
     device.addEventListener("gattserverdisconnected", () => {
       try { characteristic?.removeEventListener("characteristicvaluechanged", handleNotification); } catch(_) {}
@@ -201,7 +223,8 @@ disconnectButton.addEventListener("click", async() => {
   if (device && device.gatt.connected) {
     if (measureStartEpochMs) {
       // 計測中の場合は停止
-      await characteristic.stopNotifications();
+      try { await characteristic.stopNotifications(); } catch(_) {}
+      try { await flagcharacteristic.stopNotifications(); } catch(_) {}
     }
     device.gatt.disconnect();
   }
@@ -215,9 +238,9 @@ measureButton.addEventListener("click", async () => {
 
   if (measureStartEpochMs) {
     // 計測停止
-    await characteristic.stopNotifications();
+    try { await characteristic.stopNotifications(); } catch(_) {}
     try { characteristic.removeEventListener("characteristicvaluechanged", handleNotification); } catch(_) {}
-    characteristic.addEventListener("characteristicvaluechanged", handleNotification);
+    try { flagCharacteristic.removeEventListener("characteristicvaluechanged", handleFlagNotification);} catch(_) {}
     measureStartEpochMs = null;
     connectButton.disabled = false;
     measureButton.textContent = "計測開始";
@@ -226,8 +249,18 @@ measureButton.addEventListener("click", async () => {
     // 計測開始
     bpmBuffer = [];
     receivedData.length = 0; 
+    if (chart) {
+      chart.data.labels = [];
+      chart.data.datasets[0].data = [];
+      chart.data.datasets[1].data = [];
+      chart.update();
+    }
+    try { characteristic.removeEventListener("characteristicvaluechanged", handleNotification); } catch(_) {}
+    try { flagCharacteristic.removeEventListener("characteristicvaluechanged", handleFlagNotification);} catch(_) {}
     characteristic.addEventListener("characteristicvaluechanged", handleNotification);
+    flagCharacteristic.addEventListener("characteristicvaluechanged", handleFlagNotification);
     await characteristic.startNotifications();
+    await flagCharacteristic.startNotifications();
     measureStartEpochMs = Date.now();
 
     connectButton.disabled = true;
@@ -251,12 +284,9 @@ downloadButton.addEventListener("click", () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "MAX30102_data.csv";
+  a.download = "sensor_data.csv";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 });
-
-resetButton.addEventListener("click", clearDataAndChart);
-
