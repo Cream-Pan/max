@@ -4,14 +4,15 @@ html {
 
 body {
   font-family: 'Segoe UI', sans-serif;
-  margin: 2em;
+  font-size: clamp(14px, 1.6vw, 16px); /* 画面幅に応じて可変 */
+  margin: 1rem;
   background-color: rgb(241, 241, 226);
   color: #333;
 }
 
 h1 {
-  color: #46a15f;;
-  margin-bottom: 1em;
+  font-style: bold;
+  color: #46a15f;
 }
 
 .controls {
@@ -22,8 +23,9 @@ h1 {
 }
 
 button {
-  padding: 0.6em 1.2em;
+  padding: 0.6em 1em;
   margin-right: 0.8em;
+  margin-bottom: 0.8em;
   border: none;
   border-radius: 6px;
   background-color: #46a15f;
@@ -42,19 +44,25 @@ button:hover {
   border: 1px solid #ccc;
   border-radius: 6px;
   background: #fff;
-  max-width: 400px;
+  
 }
 
 #dataDisplay p {
-  margin: 0.4em 0;
-  font-size: 1.1em;
+  margin: 2em 0;
+  font-size: 1em;
 }
 
-.chartContainer{
+#chartContainer{
   border: 1px solid #ddd; 
-  border-radius: 8px; 
+  border-radius: 10px; 
   padding: 12px; 
-  margin: 15px 0;
+  margin: 1em 0;
+  font-size: 0.8em;
+}
+
+#realtimeChart {
+  width: 100% !important;
+  height: 55vh !important;
 }
 
 .row { 
