@@ -251,7 +251,7 @@ downloadButton.addEventListener("click", () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "sensor_data.csv";
+  a.download = "MAX30102_data.csv";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -259,3 +259,4 @@ downloadButton.addEventListener("click", () => {
 });
 
 resetButton.addEventListener("click", clearDataAndChart);
+
